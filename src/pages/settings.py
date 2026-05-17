@@ -1,4 +1,4 @@
-"""Settings page: configure emulator path, graphics, and preferences."""
+"""Page des param\u00e8tres : configurer le chemin de l'\u00e9mulateur, graphismes et pr\u00e9f\u00e9rences."""
 
 import webbrowser
 
@@ -24,7 +24,7 @@ from src.styles import COLORS
 
 
 class SettingsPage(QWidget):
-    """Application settings and configuration page."""
+    """Page de configuration et param\u00e8tres de l'application."""
 
     def __init__(self, config: Config, emulator_mgr: EmulatorManager) -> None:
         super().__init__()
@@ -45,37 +45,37 @@ class SettingsPage(QWidget):
         layout.setContentsMargins(30, 20, 30, 20)
         layout.setSpacing(10)
 
-        title = QLabel("Settings")
+        title = QLabel("Param\u00e8tres")
         title.setObjectName("page_title")
         layout.addWidget(title)
 
-        subtitle = QLabel("Configure your PS4 emulation environment")
+        subtitle = QLabel("Configurez votre environnement d'\u00e9mulation PS4")
         subtitle.setObjectName("page_subtitle")
         layout.addWidget(subtitle)
 
         # Emulator section
-        self._add_section(layout, "Emulator (shadPS4)")
+        self._add_section(layout, "\u00c9mulateur (shadPS4)")
 
         # Emulator status
-        self._emu_status = QLabel("Checking...")
+        self._emu_status = QLabel("V\u00e9rification...")
         self._emu_status.setStyleSheet(f"color: {COLORS['warning']}; font-weight: bold;")
         layout.addWidget(self._emu_status)
 
         # Emulator path
-        self._add_field_label(layout, "Emulator Path")
+        self._add_field_label(layout, "Chemin de l'\u00e9mulateur")
         path_layout = QHBoxLayout()
         self._emu_path_input = QLineEdit()
-        self._emu_path_input.setPlaceholderText("Path to shadPS4 executable...")
+        self._emu_path_input.setPlaceholderText("Chemin vers l'ex\u00e9cutable shadPS4...")
         self._emu_path_input.setReadOnly(True)
         path_layout.addWidget(self._emu_path_input)
 
-        btn_browse_emu = QPushButton("Browse")
+        btn_browse_emu = QPushButton("Parcourir")
         btn_browse_emu.setObjectName("btn_secondary")
         btn_browse_emu.setFixedWidth(100)
         btn_browse_emu.clicked.connect(self._browse_emulator)
         path_layout.addWidget(btn_browse_emu)
 
-        btn_detect = QPushButton("Auto-detect")
+        btn_detect = QPushButton("D\u00e9tecter")
         btn_detect.setObjectName("btn_secondary")
         btn_detect.setFixedWidth(100)
         btn_detect.clicked.connect(self._auto_detect)
@@ -85,7 +85,7 @@ class SettingsPage(QWidget):
 
         # Download button
         dl_layout = QHBoxLayout()
-        btn_download = QPushButton("  Download shadPS4 from GitHub")
+        btn_download = QPushButton("  T\u00e9l\u00e9charger shadPS4 depuis GitHub")
         btn_download.setObjectName("btn_secondary")
         btn_download.clicked.connect(self._open_download_page)
         dl_layout.addWidget(btn_download)
@@ -95,16 +95,16 @@ class SettingsPage(QWidget):
         self._add_separator(layout)
 
         # Games directory
-        self._add_section(layout, "Games Directory")
-        self._add_field_label(layout, "Default scan directory for PS4 games")
+        self._add_section(layout, "R\u00e9pertoire des jeux")
+        self._add_field_label(layout, "Dossier par d\u00e9faut pour scanner les jeux PS4")
 
         games_layout = QHBoxLayout()
         self._games_dir_input = QLineEdit()
-        self._games_dir_input.setPlaceholderText("Default directory to scan for games...")
+        self._games_dir_input.setPlaceholderText("Dossier par d\u00e9faut pour les jeux...")
         self._games_dir_input.setReadOnly(True)
         games_layout.addWidget(self._games_dir_input)
 
-        btn_browse_games = QPushButton("Browse")
+        btn_browse_games = QPushButton("Parcourir")
         btn_browse_games.setObjectName("btn_secondary")
         btn_browse_games.setFixedWidth(100)
         btn_browse_games.clicked.connect(self._browse_games_dir)
@@ -115,9 +115,9 @@ class SettingsPage(QWidget):
         self._add_separator(layout)
 
         # Graphics settings
-        self._add_section(layout, "Graphics")
+        self._add_section(layout, "Graphismes")
 
-        self._add_field_label(layout, "GPU Backend")
+        self._add_field_label(layout, "Moteur GPU")
         self._gpu_combo = QComboBox()
         self._gpu_combo.addItems(["Vulkan", "OpenGL"])
         self._gpu_combo.currentTextChanged.connect(
@@ -125,7 +125,7 @@ class SettingsPage(QWidget):
         )
         layout.addWidget(self._gpu_combo)
 
-        self._add_field_label(layout, "Resolution")
+        self._add_field_label(layout, "R\u00e9solution")
         self._res_combo = QComboBox()
         self._res_combo.addItems([
             "1280x720", "1920x1080", "2560x1440", "3840x2160",
@@ -135,7 +135,7 @@ class SettingsPage(QWidget):
         )
         layout.addWidget(self._res_combo)
 
-        self._fullscreen_check = QCheckBox("Launch games in fullscreen")
+        self._fullscreen_check = QCheckBox("Lancer les jeux en plein \u00e9cran")
         self._fullscreen_check.stateChanged.connect(
             lambda s: self._config.set("fullscreen", s == Qt.CheckState.Checked.value)
         )
@@ -144,9 +144,9 @@ class SettingsPage(QWidget):
         self._add_separator(layout)
 
         # Advanced
-        self._add_section(layout, "Advanced")
+        self._add_section(layout, "Avanc\u00e9")
 
-        self._add_field_label(layout, "Log Level")
+        self._add_field_label(layout, "Niveau de log")
         self._log_combo = QComboBox()
         self._log_combo.addItems(["Trace", "Debug", "Info", "Warning", "Error"])
         self._log_combo.currentTextChanged.connect(
@@ -157,7 +157,7 @@ class SettingsPage(QWidget):
         self._add_separator(layout)
 
         # Reset
-        btn_reset = QPushButton("  Reset All Settings to Default")
+        btn_reset = QPushButton("  R\u00e9initialiser tous les param\u00e8tres")
         btn_reset.setObjectName("btn_danger")
         btn_reset.clicked.connect(self._reset_settings)
         layout.addWidget(btn_reset)
@@ -167,15 +167,15 @@ class SettingsPage(QWidget):
         main_layout.addWidget(scroll)
 
     def refresh(self) -> None:
-        """Refresh settings values from config."""
+        """Rafra\u00eechir les valeurs depuis la configuration."""
         emu_path = self._emulator_mgr.detect_emulator()
         if emu_path:
             self._emu_path_input.setText(emu_path)
-            self._emu_status.setText("shadPS4 detected")
+            self._emu_status.setText("shadPS4 d\u00e9tect\u00e9")
             self._emu_status.setStyleSheet(f"color: {COLORS['success']}; font-weight: bold;")
         else:
             self._emu_path_input.setText("")
-            self._emu_status.setText("shadPS4 not found - Please set the path or download it")
+            self._emu_status.setText("shadPS4 non trouv\u00e9 - D\u00e9finissez le chemin ou t\u00e9l\u00e9chargez-le")
             self._emu_status.setStyleSheet(f"color: {COLORS['danger']}; font-weight: bold;")
 
         self._games_dir_input.setText(self._config.games_directory)
@@ -200,39 +200,39 @@ class SettingsPage(QWidget):
     def _browse_emulator(self) -> None:
         filepath, _ = QFileDialog.getOpenFileName(
             self,
-            "Select shadPS4 Executable",
+            "S\u00e9lectionner l'ex\u00e9cutable shadPS4",
             "",
-            "Executable Files (*.exe *.AppImage shadps4 shadPS4);;All Files (*)",
+            "Fichiers ex\u00e9cutables (*.exe *.AppImage shadps4 shadPS4);;Tous les fichiers (*)",
         )
         if filepath:
             if self._emulator_mgr.set_emulator_path(filepath):
                 self._emu_path_input.setText(filepath)
-                self._emu_status.setText("shadPS4 configured")
+                self._emu_status.setText("shadPS4 configur\u00e9")
                 self._emu_status.setStyleSheet(f"color: {COLORS['success']}; font-weight: bold;")
             else:
-                QMessageBox.warning(self, "Invalid Path", "The selected file does not exist.")
+                QMessageBox.warning(self, "Chemin invalide", "Le fichier s\u00e9lectionn\u00e9 n'existe pas.")
 
     def _auto_detect(self) -> None:
         path = self._emulator_mgr.detect_emulator()
         if path:
             self._emu_path_input.setText(path)
-            self._emu_status.setText("shadPS4 detected")
+            self._emu_status.setText("shadPS4 d\u00e9tect\u00e9")
             self._emu_status.setStyleSheet(f"color: {COLORS['success']}; font-weight: bold;")
             QMessageBox.information(
-                self, "Emulator Found", f"shadPS4 detected at:\n{path}"
+                self, "\u00c9mulateur trouv\u00e9", f"shadPS4 d\u00e9tect\u00e9 \u00e0 :\n{path}"
             )
         else:
             QMessageBox.information(
                 self,
-                "Not Found",
-                "shadPS4 was not found on your system.\n\n"
-                "Please download it from GitHub or manually set the path.",
+                "Non trouv\u00e9",
+                "shadPS4 n'a pas \u00e9t\u00e9 trouv\u00e9 sur votre syst\u00e8me.\n\n"
+                "Veuillez le t\u00e9l\u00e9charger depuis GitHub ou d\u00e9finir le chemin manuellement.",
             )
 
     def _browse_games_dir(self) -> None:
         directory = QFileDialog.getExistingDirectory(
             self,
-            "Select Games Directory",
+            "S\u00e9lectionner le r\u00e9pertoire des jeux",
             self._config.games_directory or "",
         )
         if directory:
@@ -245,9 +245,9 @@ class SettingsPage(QWidget):
     def _reset_settings(self) -> None:
         reply = QMessageBox.question(
             self,
-            "Reset Settings",
-            "Reset all settings to their default values?\n\n"
-            "This will not remove your firmware or game library.",
+            "R\u00e9initialiser les param\u00e8tres",
+            "R\u00e9initialiser tous les param\u00e8tres \u00e0 leurs valeurs par d\u00e9faut ?\n\n"
+            "Cela ne supprimera pas votre firmware ni votre biblioth\u00e8que de jeux.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No,
         )

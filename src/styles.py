@@ -1,25 +1,27 @@
-"""PS4-inspired dark theme stylesheets for the application."""
+"""Theme PS4 authentique - feuilles de style sombres pour l'application."""
 
 COLORS = {
-    "bg_primary": "#0e0e1a",
-    "bg_secondary": "#151528",
-    "bg_card": "#1a1a35",
-    "bg_card_hover": "#222250",
-    "bg_sidebar": "#0a0a18",
-    "bg_input": "#1e1e3e",
-    "accent": "#006fff",
-    "accent_hover": "#0058cc",
-    "accent_light": "#1a8fff",
+    "bg_primary": "#003087",
+    "bg_secondary": "#00246d",
+    "bg_card": "#0d3f9e",
+    "bg_card_hover": "#1a4fb8",
+    "bg_sidebar": "#001d5a",
+    "bg_input": "#002470",
+    "accent": "#00d4ff",
+    "accent_hover": "#00b8e6",
+    "accent_light": "#33ddff",
     "text_primary": "#ffffff",
-    "text_secondary": "#8888aa",
-    "text_muted": "#555577",
-    "border": "#2a2a50",
+    "text_secondary": "#99ccff",
+    "text_muted": "#6699cc",
+    "border": "#0050aa",
     "danger": "#e74c3c",
     "danger_hover": "#c0392b",
     "success": "#2ecc71",
-    "warning": "#f39c12",
-    "scrollbar_bg": "#151528",
-    "scrollbar_handle": "#2a2a50",
+    "warning": "#f1c40f",
+    "scrollbar_bg": "#001d5a",
+    "scrollbar_handle": "#0050aa",
+    "ps4_dark": "#00113a",
+    "ps4_highlight": "#00d4ff",
 }
 
 MAIN_STYLESHEET = f"""
@@ -29,69 +31,84 @@ QMainWindow {{
 
 QWidget {{
     color: {COLORS["text_primary"]};
-    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-family: "SST", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     font-size: 13px;
 }}
 
-/* Sidebar */
+/* Barre laterale */
 #sidebar {{
-    background-color: {COLORS["bg_sidebar"]};
-    border-right: 1px solid {COLORS["border"]};
-    min-width: 220px;
-    max-width: 220px;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 {COLORS["ps4_dark"]},
+        stop:0.5 {COLORS["bg_sidebar"]},
+        stop:1 {COLORS["ps4_dark"]});
+    border-right: 2px solid {COLORS["ps4_highlight"]};
+    min-width: 240px;
+    max-width: 240px;
 }}
 
 #sidebar_title {{
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
-    color: {COLORS["accent"]};
-    padding: 20px 16px 5px 16px;
+    color: {COLORS["ps4_highlight"]};
+    padding: 24px 16px 2px 16px;
+    letter-spacing: 2px;
 }}
 
 #sidebar_subtitle {{
     font-size: 11px;
     color: {COLORS["text_muted"]};
-    padding: 0px 16px 20px 16px;
+    padding: 0px 16px 24px 16px;
+    letter-spacing: 1px;
 }}
 
 #nav_button {{
     background: transparent;
     border: none;
-    border-radius: 8px;
+    border-left: 3px solid transparent;
     text-align: left;
-    padding: 12px 16px;
-    font-size: 14px;
+    padding: 14px 20px;
+    font-size: 15px;
     color: {COLORS["text_secondary"]};
-    margin: 2px 8px;
+    margin: 1px 0px;
+    letter-spacing: 0.5px;
 }}
 
 #nav_button:hover {{
-    background-color: {COLORS["bg_card"]};
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(0, 212, 255, 0.15),
+        stop:1 transparent);
     color: {COLORS["text_primary"]};
+    border-left: 3px solid {COLORS["ps4_highlight"]};
 }}
 
 #nav_button_active {{
-    background-color: {COLORS["accent"]};
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(0, 212, 255, 0.25),
+        stop:1 rgba(0, 212, 255, 0.05));
     border: none;
-    border-radius: 8px;
+    border-left: 3px solid {COLORS["ps4_highlight"]};
     text-align: left;
-    padding: 12px 16px;
-    font-size: 14px;
+    padding: 14px 20px;
+    font-size: 15px;
     color: {COLORS["text_primary"]};
     font-weight: bold;
-    margin: 2px 8px;
+    margin: 1px 0px;
+    letter-spacing: 0.5px;
 }}
 
 /* Pages */
 #page_container {{
-    background-color: {COLORS["bg_primary"]};
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 {COLORS["bg_primary"]},
+        stop:1 #001a4d);
 }}
 
 #page_title {{
-    font-size: 26px;
+    font-size: 28px;
     font-weight: bold;
     color: {COLORS["text_primary"]};
     padding: 10px 0px;
+    letter-spacing: 1px;
 }}
 
 #page_subtitle {{
@@ -100,24 +117,28 @@ QWidget {{
     padding: 0px 0px 15px 0px;
 }}
 
-/* Cards */
+/* Cartes */
 #status_card {{
-    background-color: {COLORS["bg_card"]};
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 {COLORS["bg_card"]},
+        stop:1 {COLORS["bg_secondary"]});
     border: 1px solid {COLORS["border"]};
     border-radius: 12px;
     padding: 20px;
 }}
 
 #status_card:hover {{
-    background-color: {COLORS["bg_card_hover"]};
-    border-color: {COLORS["accent"]};
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 {COLORS["bg_card_hover"]},
+        stop:1 {COLORS["bg_card"]});
+    border-color: {COLORS["ps4_highlight"]};
 }}
 
 #card_title {{
-    font-size: 12px;
+    font-size: 11px;
     color: {COLORS["text_secondary"]};
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
 }}
 
 #card_value {{
@@ -148,23 +169,28 @@ QWidget {{
     padding: 5px 0px;
 }}
 
-/* Buttons */
+/* Boutons */
 QPushButton {{
-    background-color: {COLORS["accent"]};
-    color: {COLORS["text_primary"]};
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 {COLORS["accent"]},
+        stop:1 {COLORS["accent_hover"]});
+    color: #000000;
     border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
+    border-radius: 4px;
+    padding: 10px 24px;
     font-size: 13px;
     font-weight: bold;
+    letter-spacing: 0.5px;
 }}
 
 QPushButton:hover {{
-    background-color: {COLORS["accent_hover"]};
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 {COLORS["accent_light"]},
+        stop:1 {COLORS["accent"]});
 }}
 
 QPushButton:pressed {{
-    background-color: #004cbf;
+    background-color: #0099cc;
 }}
 
 QPushButton:disabled {{
@@ -173,25 +199,34 @@ QPushButton:disabled {{
 }}
 
 #btn_secondary {{
-    background-color: {COLORS["bg_card"]};
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 {COLORS["bg_card"]},
+        stop:1 {COLORS["bg_secondary"]});
     border: 1px solid {COLORS["border"]};
+    color: {COLORS["text_primary"]};
 }}
 
 #btn_secondary:hover {{
-    background-color: {COLORS["bg_card_hover"]};
-    border-color: {COLORS["accent"]};
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 {COLORS["bg_card_hover"]},
+        stop:1 {COLORS["bg_card"]});
+    border-color: {COLORS["ps4_highlight"]};
 }}
 
 #btn_danger {{
-    background-color: {COLORS["danger"]};
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 {COLORS["danger"]},
+        stop:1 {COLORS["danger_hover"]});
+    color: {COLORS["text_primary"]};
 }}
 
 #btn_danger:hover {{
-    background-color: {COLORS["danger_hover"]};
+    background-color: {COLORS["danger"]};
 }}
 
 #btn_success {{
     background-color: {COLORS["success"]};
+    color: #000000;
 }}
 
 #btn_icon {{
@@ -202,21 +237,22 @@ QPushButton:disabled {{
 }}
 
 #btn_icon:hover {{
-    background-color: {COLORS["bg_card"]};
+    background-color: rgba(0, 212, 255, 0.15);
 }}
 
-/* Input */
+/* Champs de saisie */
 QLineEdit {{
     background-color: {COLORS["bg_input"]};
     border: 1px solid {COLORS["border"]};
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 10px 14px;
     color: {COLORS["text_primary"]};
     font-size: 13px;
 }}
 
 QLineEdit:focus {{
-    border-color: {COLORS["accent"]};
+    border-color: {COLORS["ps4_highlight"]};
+    background-color: {COLORS["bg_secondary"]};
 }}
 
 QLineEdit::placeholder {{
@@ -227,14 +263,14 @@ QLineEdit::placeholder {{
 QComboBox {{
     background-color: {COLORS["bg_input"]};
     border: 1px solid {COLORS["border"]};
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 10px 14px;
     color: {COLORS["text_primary"]};
     font-size: 13px;
 }}
 
 QComboBox:hover {{
-    border-color: {COLORS["accent"]};
+    border-color: {COLORS["ps4_highlight"]};
 }}
 
 QComboBox::drop-down {{
@@ -246,7 +282,8 @@ QComboBox QAbstractItemView {{
     background-color: {COLORS["bg_card"]};
     border: 1px solid {COLORS["border"]};
     color: {COLORS["text_primary"]};
-    selection-background-color: {COLORS["accent"]};
+    selection-background-color: {COLORS["ps4_highlight"]};
+    selection-color: #000000;
 }}
 
 /* Checkbox */
@@ -264,11 +301,11 @@ QCheckBox::indicator {{
 }}
 
 QCheckBox::indicator:checked {{
-    background-color: {COLORS["accent"]};
-    border-color: {COLORS["accent"]};
+    background-color: {COLORS["ps4_highlight"]};
+    border-color: {COLORS["ps4_highlight"]};
 }}
 
-/* ScrollArea */
+/* Zone de defilement */
 QScrollArea {{
     border: none;
     background: transparent;
@@ -276,19 +313,19 @@ QScrollArea {{
 
 QScrollBar:vertical {{
     background-color: {COLORS["scrollbar_bg"]};
-    width: 8px;
+    width: 6px;
     margin: 0;
-    border-radius: 4px;
+    border-radius: 3px;
 }}
 
 QScrollBar::handle:vertical {{
     background-color: {COLORS["scrollbar_handle"]};
     min-height: 30px;
-    border-radius: 4px;
+    border-radius: 3px;
 }}
 
 QScrollBar::handle:vertical:hover {{
-    background-color: {COLORS["accent"]};
+    background-color: {COLORS["ps4_highlight"]};
 }}
 
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
@@ -297,26 +334,26 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
 
 QScrollBar:horizontal {{
     background-color: {COLORS["scrollbar_bg"]};
-    height: 8px;
+    height: 6px;
     margin: 0;
-    border-radius: 4px;
+    border-radius: 3px;
 }}
 
 QScrollBar::handle:horizontal {{
     background-color: {COLORS["scrollbar_handle"]};
     min-width: 30px;
-    border-radius: 4px;
+    border-radius: 3px;
 }}
 
 QScrollBar::handle:horizontal:hover {{
-    background-color: {COLORS["accent"]};
+    background-color: {COLORS["ps4_highlight"]};
 }}
 
 QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
     width: 0;
 }}
 
-/* Progress Bar */
+/* Barre de progression */
 QProgressBar {{
     background-color: {COLORS["bg_input"]};
     border: none;
@@ -328,20 +365,26 @@ QProgressBar {{
 }}
 
 QProgressBar::chunk {{
-    background-color: {COLORS["accent"]};
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 {COLORS["accent"]},
+        stop:1 {COLORS["accent_light"]});
     border-radius: 6px;
 }}
 
-/* Game Card */
+/* Carte de jeu */
 #game_card {{
-    background-color: {COLORS["bg_card"]};
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 {COLORS["bg_card"]},
+        stop:1 {COLORS["bg_secondary"]});
     border: 1px solid {COLORS["border"]};
-    border-radius: 12px;
+    border-radius: 8px;
 }}
 
 #game_card:hover {{
-    border-color: {COLORS["accent"]};
-    background-color: {COLORS["bg_card_hover"]};
+    border-color: {COLORS["ps4_highlight"]};
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 {COLORS["bg_card_hover"]},
+        stop:1 {COLORS["bg_card"]});
 }}
 
 #game_title {{
@@ -357,19 +400,20 @@ QProgressBar::chunk {{
     padding: 0px 10px 8px 10px;
 }}
 
-/* Separator */
+/* Separateur */
 #separator {{
     background-color: {COLORS["border"]};
     max-height: 1px;
     margin: 10px 0px;
 }}
 
-/* Label */
+/* Labels */
 #label_section {{
     font-size: 16px;
     font-weight: bold;
-    color: {COLORS["text_primary"]};
+    color: {COLORS["ps4_highlight"]};
     padding: 15px 0px 8px 0px;
+    letter-spacing: 1px;
 }}
 
 #label_field {{
@@ -391,17 +435,17 @@ QMessageBox QPushButton {{
     min-width: 80px;
 }}
 
-/* ToolTip */
+/* Info-bulle */
 QToolTip {{
     background-color: {COLORS["bg_card"]};
     color: {COLORS["text_primary"]};
-    border: 1px solid {COLORS["border"]};
+    border: 1px solid {COLORS["ps4_highlight"]};
     border-radius: 4px;
     padding: 6px;
     font-size: 12px;
 }}
 
-/* FileDialog */
+/* Dialogue fichier */
 QFileDialog {{
     background-color: {COLORS["bg_secondary"]};
 }}

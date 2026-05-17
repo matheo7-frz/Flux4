@@ -1,4 +1,4 @@
-"""Game library page: browse, add, and launch PS4 games."""
+"""Page de la biblioth\u00e8que de jeux : parcourir, ajouter et lancer des jeux PS4."""
 
 import os
 from functools import partial
@@ -27,7 +27,7 @@ from src.styles import COLORS
 
 
 class GameCard(QFrame):
-    """A card widget representing a PS4 game."""
+    """Widget carte repr\u00e9sentant un jeu PS4."""
 
     def __init__(self, game: GameEntry, parent_page: "LibraryPage") -> None:
         super().__init__()
@@ -65,7 +65,7 @@ class GameCard(QFrame):
             )
             cover_label.setPixmap(pixmap)
         else:
-            cover_label.setText("No\nCover")
+            cover_label.setText("Pas de\njaquette")
             cover_label.setStyleSheet(
                 f"color: {COLORS['text_muted']}; font-size: 14px; font-weight: bold;"
             )
@@ -107,28 +107,28 @@ class GameCard(QFrame):
             f"QMenu::item:selected {{ background-color: {COLORS['accent']}; border-radius: 4px; }}"
         )
 
-        launch_action = menu.addAction("Launch Game")
+        launch_action = menu.addAction("Lancer le jeu")
         launch_action.triggered.connect(lambda: self._parent_page.launch_game(self.game))
 
         menu.addSeparator()
 
-        fav_text = "Remove from Favorites" if self.game.favorite else "Add to Favorites"
+        fav_text = "Retirer des favoris" if self.game.favorite else "Ajouter aux favoris"
         fav_action = menu.addAction(fav_text)
         fav_action.triggered.connect(lambda: self._parent_page.toggle_favorite(self.game))
 
-        open_folder = menu.addAction("Open Game Folder")
+        open_folder = menu.addAction("Ouvrir le dossier du jeu")
         open_folder.triggered.connect(lambda: self._parent_page.open_folder(self.game))
 
         menu.addSeparator()
 
-        remove_action = menu.addAction("Remove from Library")
+        remove_action = menu.addAction("Retirer de la biblioth\u00e8que")
         remove_action.triggered.connect(lambda: self._parent_page.remove_game(self.game))
 
         menu.exec(event.globalPos())
 
 
 class LibraryPage(QWidget):
-    """Game library browsing and management page."""
+    """Page de navigation et gestion de la biblioth\u00e8que de jeux."""
 
     def __init__(
         self,
@@ -151,12 +151,12 @@ class LibraryPage(QWidget):
         # Header
         header_layout = QHBoxLayout()
 
-        title = QLabel("Game Library")
+        title = QLabel("Biblioth\u00e8que de jeux")
         title.setObjectName("page_title")
         header_layout.addWidget(title)
         header_layout.addStretch()
 
-        self._count_label = QLabel("0 games")
+        self._count_label = QLabel("0 jeu")
         self._count_label.setStyleSheet(
             f"color: {COLORS['text_secondary']}; font-size: 14px; padding-top: 12px;"
         )
@@ -169,18 +169,18 @@ class LibraryPage(QWidget):
         action_bar.setSpacing(10)
 
         self._search_input = QLineEdit()
-        self._search_input.setPlaceholderText("Search games...")
+        self._search_input.setPlaceholderText("Rechercher un jeu...")
         self._search_input.setMinimumWidth(250)
         self._search_input.textChanged.connect(self._filter_games)
         action_bar.addWidget(self._search_input)
 
         action_bar.addStretch()
 
-        btn_add = QPushButton("  Add Game Folder")
+        btn_add = QPushButton("  Ajouter un jeu")
         btn_add.clicked.connect(self._add_game)
         action_bar.addWidget(btn_add)
 
-        btn_scan = QPushButton("  Scan Directory")
+        btn_scan = QPushButton("  Scanner un dossier")
         btn_scan.setObjectName("btn_secondary")
         btn_scan.clicked.connect(self._scan_directory)
         action_bar.addWidget(btn_scan)
@@ -203,9 +203,9 @@ class LibraryPage(QWidget):
 
         # Empty state
         self._empty_label = QLabel(
-            "Your library is empty.\n\n"
-            "Click 'Add Game Folder' to add a PS4 game dump directory,\n"
-            "or 'Scan Directory' to automatically find games in a folder."
+            "Votre biblioth\u00e8que est vide.\n\n"
+            "Cliquez sur 'Ajouter un jeu' pour ajouter un dossier de jeu PS4,\n"
+            "ou 'Scanner un dossier' pour trouver automatiquement les jeux."
         )
         self._empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._empty_label.setStyleSheet(
@@ -215,7 +215,7 @@ class LibraryPage(QWidget):
         layout.addWidget(self._empty_label)
 
     def refresh(self) -> None:
-        """Refresh the game grid."""
+        """Rafra\u00eechir la grille de jeux."""
         self._populate_grid(self._game_lib.games)
 
     def _populate_grid(self, games: list[GameEntry]) -> None:
@@ -231,7 +231,7 @@ class LibraryPage(QWidget):
             if item.widget():
                 item.widget().deleteLater()
 
-        self._count_label.setText(f"{len(games)} game{'s' if len(games) != 1 else ''}")
+        self._count_label.setText(f"{len(games)} jeu{'x' if len(games) > 1 else ''}")
         self._empty_label.setVisible(len(games) == 0)
         self._grid_widget.setVisible(len(games) > 0)
 
@@ -253,7 +253,7 @@ class LibraryPage(QWidget):
     def _add_game(self) -> None:
         directory = QFileDialog.getExistingDirectory(
             self,
-            "Select PS4 Game Folder",
+            "S\u00e9lectionner le dossier du jeu PS4",
             self._config.games_directory or "",
         )
         if not directory:
@@ -263,23 +263,23 @@ class LibraryPage(QWidget):
         if game:
             QMessageBox.information(
                 self,
-                "Game Added",
-                f"'{game.title}' has been added to your library!",
+                "Jeu ajout\u00e9",
+                f"'{game.title}' a \u00e9t\u00e9 ajout\u00e9 \u00e0 votre biblioth\u00e8que !",
             )
             self.refresh()
         else:
             QMessageBox.warning(
                 self,
-                "Invalid Game Folder",
-                "The selected folder doesn't appear to be a valid PS4 game dump.\n\n"
-                "A valid PS4 game folder should contain an EBOOT.BIN file\n"
-                "and/or a sce_sys/param.sfo metadata file.",
+                "Dossier de jeu invalide",
+                "Le dossier s\u00e9lectionn\u00e9 ne semble pas \u00eatre un dump de jeu PS4 valide.\n\n"
+                "Un dossier de jeu PS4 valide doit contenir un fichier EBOOT.BIN\n"
+                "et/ou un fichier de m\u00e9tadonn\u00e9es sce_sys/param.sfo.",
             )
 
     def _scan_directory(self) -> None:
         directory = QFileDialog.getExistingDirectory(
             self,
-            "Select Directory to Scan for PS4 Games",
+            "S\u00e9lectionner le dossier \u00e0 scanner",
             self._config.games_directory or "",
         )
         if not directory:
@@ -288,37 +288,38 @@ class LibraryPage(QWidget):
         added = self._game_lib.scan_directory(directory)
         if added:
             names = ", ".join(g.title for g in added[:5])
-            extra = f" and {len(added) - 5} more" if len(added) > 5 else ""
+            extra = f" et {len(added) - 5} autres" if len(added) > 5 else ""
             QMessageBox.information(
                 self,
-                "Scan Complete",
-                f"Found {len(added)} game(s): {names}{extra}",
+                "Scan termin\u00e9",
+                f"{len(added)} jeu(x) trouv\u00e9(s) : {names}{extra}",
             )
             self._config.games_directory = directory
             self.refresh()
         else:
             QMessageBox.information(
                 self,
-                "Scan Complete",
-                "No new PS4 games found in the selected directory.",
+                "Scan termin\u00e9",
+                "Aucun nouveau jeu PS4 trouv\u00e9 dans le dossier s\u00e9lectionn\u00e9.",
             )
 
     def launch_game(self, game: GameEntry) -> None:
-        if not self._emulator_mgr.is_installed():
-            QMessageBox.warning(
-                self,
-                "Emulator Not Found",
-                "shadPS4 is not installed or not configured.\n\n"
-                "Please go to Settings and set the emulator path.",
-            )
-            return
-
         if not self._config.firmware_installed:
             QMessageBox.warning(
                 self,
-                "Firmware Required",
-                "PS4 firmware is not installed.\n\n"
-                "Please go to the Firmware page and import a firmware file first.",
+                "Firmware obligatoire",
+                "Le firmware PS4 n'est pas install\u00e9.\n\n"
+                "Vous devez d'abord aller dans la page Firmware et importer un fichier firmware.\n"
+                "Sans firmware, il est impossible de lancer un jeu.",
+            )
+            return
+
+        if not self._emulator_mgr.is_installed():
+            QMessageBox.warning(
+                self,
+                "\u00c9mulateur non trouv\u00e9",
+                "shadPS4 n'est pas install\u00e9 ou n'est pas configur\u00e9.\n\n"
+                "Allez dans les Param\u00e8tres et d\u00e9finissez le chemin de l'\u00e9mulateur.",
             )
             return
 
@@ -327,9 +328,9 @@ class LibraryPage(QWidget):
         if not process:
             QMessageBox.critical(
                 self,
-                "Launch Failed",
-                f"Failed to launch '{game.title}'.\n\n"
-                "Make sure the game files are valid and the emulator is properly configured.",
+                "\u00c9chec du lancement",
+                f"Impossible de lancer '{game.title}'.\n\n"
+                "V\u00e9rifiez que les fichiers du jeu sont valides et que l'\u00e9mulateur est bien configur\u00e9.",
             )
 
     def toggle_favorite(self, game: GameEntry) -> None:
@@ -339,9 +340,9 @@ class LibraryPage(QWidget):
     def remove_game(self, game: GameEntry) -> None:
         reply = QMessageBox.question(
             self,
-            "Remove Game",
-            f"Remove '{game.title}' from the library?\n\n"
-            "(This will NOT delete the game files from disk.)",
+            "Retirer le jeu",
+            f"Retirer '{game.title}' de la biblioth\u00e8que ?\n\n"
+            "(Les fichiers du jeu ne seront PAS supprim\u00e9s du disque.)",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No,
         )

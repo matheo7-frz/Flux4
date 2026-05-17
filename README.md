@@ -1,125 +1,126 @@
-# PS4 Emu Launcher
+# Flux4 - Lanceur PS4
 
-A desktop launcher and frontend for the [shadPS4](https://github.com/shadps4-emu/shadPS4) PS4 emulator, built with Python and PySide6.
+Un lanceur desktop et frontend pour l'émulateur PS4 [shadPS4](https://github.com/shadps4-emu/shadPS4), construit avec Python et PySide6.
 
-## Features
+## Fonctionnalités
 
-- **Firmware Management**: Import and validate PS4 firmware files (PS4UPDATE.PUP)
-- **Game Library**: Browse, organize, and launch your PS4 game collection with cover art
-- **shadPS4 Integration**: Auto-detect or manually configure shadPS4, launch games directly
-- **PS4-Styled UI**: Dark blue theme inspired by the PlayStation 4 interface
-- **Settings Panel**: Configure GPU backend, resolution, fullscreen mode, and more
-- **Cross-Platform**: Works on Windows, Linux, and macOS
+- **Gestion du Firmware** : Importer et valider les fichiers firmware PS4 (PS4UPDATE.PUP)
+- **Bibliothèque de jeux** : Parcourir, organiser et lancer votre collection de jeux PS4 avec jaquettes
+- **Intégration shadPS4** : Détection automatique ou configuration manuelle de shadPS4, lancement direct des jeux
+- **Interface style PS4** : Thème bleu foncé inspiré de l'interface PlayStation 4
+- **Panneau de paramètres** : Configurer le moteur GPU, la résolution, le mode plein écran, etc.
+- **Firmware obligatoire** : Impossible de lancer un jeu sans avoir installé le firmware PS4
+- **Multi-plateforme** : Fonctionne sur Windows, Linux et macOS
 
-## Screenshots
+## Captures d'écran
 
-The launcher features a modern PS4-inspired dark theme with:
-- Dashboard with status overview
-- Firmware import and validation
-- Game library grid with covers
-- Full settings panel
+Le lanceur propose un thème sombre inspiré de la PS4 avec :
+- Tableau de bord avec vue d'ensemble
+- Import et validation du firmware
+- Grille de jeux avec jaquettes
+- Panneau de paramètres complet
 
 ## Installation
 
-### Prerequisites
+### Prérequis
 
-- Python 3.10 or higher
-- pip (Python package manager)
+- Python 3.10 ou supérieur
+- pip (gestionnaire de paquets Python)
 
-### Install from source
+### Installer depuis les sources
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/ps4-emu-launcher.git
-cd ps4-emu-launcher
+# Cloner le dépôt
+git clone https://github.com/matheo7-frz/Flux4.git
+cd Flux4
 
-# Install dependencies
+# Installer les dépendances
 pip install -r requirements.txt
 
-# Run the launcher
+# Lancer l'application
 python main.py
 ```
 
-### Install as package
+### Installer comme paquet
 
 ```bash
 pip install .
 ps4-emu-launcher
 ```
 
-## Setup Guide
+## Guide de configuration
 
-### 1. Install shadPS4
+### 1. Installer shadPS4
 
-The launcher requires [shadPS4](https://github.com/shadps4-emu/shadPS4/releases) to be installed on your system.
+Le lanceur nécessite [shadPS4](https://github.com/shadps4-emu/shadPS4/releases) installé sur votre système.
 
-- Download the latest release from GitHub
-- Extract it to a known location
-- The launcher will try to auto-detect it, or you can set the path manually in Settings
+- Téléchargez la dernière version depuis GitHub
+- Extrayez-le dans un emplacement connu
+- Le lanceur essaiera de le détecter automatiquement, ou vous pouvez définir le chemin manuellement dans les Paramètres
 
-### 2. Import PS4 Firmware
+### 2. Importer le Firmware PS4
 
-PS4 games require the console's firmware to run:
+Le firmware PS4 est **obligatoire** pour lancer les jeux :
 
-1. Go to the **Firmware** tab
-2. Click **Import Firmware (.PUP)**
-3. Select your `PS4UPDATE.PUP` file
-4. The launcher validates and installs it automatically
+1. Allez dans l'onglet **Firmware**
+2. Cliquez sur **Importer le Firmware (.PUP)**
+3. Sélectionnez votre fichier `PS4UPDATE.PUP`
+4. Le lanceur le valide et l'installe automatiquement
 
-### 3. Add Games
+### 3. Ajouter des jeux
 
-Add your PS4 game dumps to the library:
+Ajoutez vos dumps de jeux PS4 à la bibliothèque :
 
-1. Go to the **Library** tab
-2. Click **Add Game Folder** to add individual games
-3. Or click **Scan Directory** to find all games in a folder
-4. Double-click a game to launch it
+1. Allez dans l'onglet **Bibliothèque**
+2. Cliquez sur **Ajouter un jeu** pour ajouter des jeux individuellement
+3. Ou cliquez sur **Scanner un dossier** pour trouver tous les jeux dans un répertoire
+4. Double-cliquez sur un jeu pour le lancer
 
-### Game Folder Structure
+### Structure d'un dossier de jeu
 
-A valid PS4 game dump should contain:
+Un dump de jeu PS4 valide doit contenir :
 ```
-GameFolder/
-  eboot.bin          (main executable)
+DossierJeu/
+  eboot.bin          (exécutable principal)
   sce_sys/
-    param.sfo        (game metadata)
-    icon0.png        (game icon/cover)
+    param.sfo        (métadonnées du jeu)
+    icon0.png        (icône/jaquette du jeu)
 ```
 
 ## Configuration
 
-Settings are stored in `~/.ps4-emu-launcher/config.json` and include:
+Les paramètres sont stockés dans `~/.ps4-emu-launcher/config.json` et incluent :
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| GPU Backend | Vulkan or OpenGL | Vulkan |
-| Resolution | Render resolution | 1920x1080 |
-| Fullscreen | Launch in fullscreen | Off |
-| Log Level | Emulator log verbosity | Info |
+| Paramètre | Description | Défaut |
+|-----------|-------------|--------|
+| Moteur GPU | Vulkan ou OpenGL | Vulkan |
+| Résolution | Résolution de rendu | 1920x1080 |
+| Plein écran | Lancer en plein écran | Désactivé |
+| Niveau de log | Verbosité des logs de l'émulateur | Info |
 
-## Project Structure
+## Structure du projet
 
 ```
-ps4-emu-launcher/
-├── main.py                    # Entry point
-├── requirements.txt           # Python dependencies
-├── setup.py                   # Package installation
+Flux4/
+├── main.py                    # Point d'entrée
+├── requirements.txt           # Dépendances Python
+├── setup.py                   # Installation du paquet
 ├── src/
 │   ├── __init__.py
-│   ├── main_window.py         # Main window with sidebar
-│   ├── styles.py              # PS4-themed stylesheets
+│   ├── main_window.py         # Fenêtre principale avec barre latérale
+│   ├── styles.py              # Feuilles de style thème PS4
 │   ├── core/
-│   │   ├── config.py          # Configuration management
-│   │   ├── firmware_manager.py # Firmware validation & import
-│   │   ├── emulator_manager.py # shadPS4 integration
-│   │   └── game_library.py    # Game scanning & catalog
+│   │   ├── config.py          # Gestion de la configuration
+│   │   ├── firmware_manager.py # Validation et import du firmware
+│   │   ├── emulator_manager.py # Intégration shadPS4
+│   │   └── game_library.py    # Scan et catalogue de jeux
 │   └── pages/
-│       ├── home.py            # Dashboard page
-│       ├── firmware.py        # Firmware management page
-│       ├── library.py         # Game library page
-│       └── settings.py        # Settings page
+│       ├── home.py            # Page tableau de bord
+│       ├── firmware.py        # Page gestion du firmware
+│       ├── library.py         # Page bibliothèque de jeux
+│       └── settings.py        # Page paramètres
 ```
 
-## License
+## Licence
 
-MIT License
+Licence MIT

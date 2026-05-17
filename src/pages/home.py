@@ -1,4 +1,4 @@
-"""Home/Dashboard page showing system status and quick actions."""
+"""Page d'accueil/Tableau de bord affichant l'etat du systeme et les actions rapides."""
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -18,7 +18,7 @@ from src.core.game_library import GameLibrary
 
 
 class StatusCard(QFrame):
-    """A dashboard status card widget."""
+    """Widget de carte de statut pour le tableau de bord."""
 
     def __init__(self, title: str, value: str, status: str = "normal") -> None:
         super().__init__()
@@ -52,7 +52,7 @@ class StatusCard(QFrame):
 
 
 class HomePage(QWidget):
-    """Main dashboard page."""
+    """Page principale du tableau de bord."""
 
     navigate_to = Signal(str)
 
@@ -75,11 +75,11 @@ class HomePage(QWidget):
         layout.setContentsMargins(30, 20, 30, 20)
         layout.setSpacing(10)
 
-        title = QLabel("Dashboard")
+        title = QLabel("Tableau de bord")
         title.setObjectName("page_title")
         layout.addWidget(title)
 
-        subtitle = QLabel("Overview of your PS4 emulation setup")
+        subtitle = QLabel("Vue d'ensemble de votre configuration PS4")
         subtitle.setObjectName("page_subtitle")
         layout.addWidget(subtitle)
 
@@ -87,37 +87,37 @@ class HomePage(QWidget):
         cards_layout = QGridLayout()
         cards_layout.setSpacing(15)
 
-        self._fw_card = StatusCard("FIRMWARE", "Checking...", "warning")
+        self._fw_card = StatusCard("FIRMWARE", "V\u00e9rification...", "warning")
         self._fw_card.mousePressEvent = lambda _: self.navigate_to.emit("firmware")
         cards_layout.addWidget(self._fw_card, 0, 0)
 
-        self._emu_card = StatusCard("EMULATOR (shadPS4)", "Checking...", "warning")
+        self._emu_card = StatusCard("\u00c9MULATEUR (shadPS4)", "V\u00e9rification...", "warning")
         self._emu_card.mousePressEvent = lambda _: self.navigate_to.emit("settings")
         cards_layout.addWidget(self._emu_card, 0, 1)
 
-        self._games_card = StatusCard("GAMES", "0 games", "normal")
+        self._games_card = StatusCard("JEUX", "0 jeu", "normal")
         self._games_card.mousePressEvent = lambda _: self.navigate_to.emit("library")
         cards_layout.addWidget(self._games_card, 0, 2)
 
         layout.addLayout(cards_layout)
 
-        # Quick actions section
-        section_label = QLabel("Quick Actions")
+        # Section actions rapides
+        section_label = QLabel("Actions rapides")
         section_label.setObjectName("label_section")
         layout.addWidget(section_label)
 
         actions_layout = QHBoxLayout()
         actions_layout.setSpacing(10)
 
-        btn_firmware = QPushButton("  Install Firmware")
+        btn_firmware = QPushButton("  Installer le Firmware")
         btn_firmware.clicked.connect(lambda: self.navigate_to.emit("firmware"))
         actions_layout.addWidget(btn_firmware)
 
-        btn_add_games = QPushButton("  Add Games")
+        btn_add_games = QPushButton("  Ajouter des jeux")
         btn_add_games.clicked.connect(lambda: self.navigate_to.emit("library"))
         actions_layout.addWidget(btn_add_games)
 
-        btn_settings = QPushButton("  Settings")
+        btn_settings = QPushButton("  Param\u00e8tres")
         btn_settings.setObjectName("btn_secondary")
         btn_settings.clicked.connect(lambda: self.navigate_to.emit("settings"))
         actions_layout.addWidget(btn_settings)
@@ -125,8 +125,8 @@ class HomePage(QWidget):
         actions_layout.addStretch()
         layout.addLayout(actions_layout)
 
-        # Recent games section
-        self._recent_section = QLabel("Recent Games")
+        # Section jeux recents
+        self._recent_section = QLabel("Jeux r\u00e9cents")
         self._recent_section.setObjectName("label_section")
         layout.addWidget(self._recent_section)
 
@@ -134,7 +134,7 @@ class HomePage(QWidget):
         self._recent_container.setSpacing(8)
         layout.addLayout(self._recent_container)
 
-        self._no_recent_label = QLabel("No recent games. Add some games to your library to get started!")
+        self._no_recent_label = QLabel("Aucun jeu r\u00e9cent. Ajoutez des jeux \u00e0 votre biblioth\u00e8que pour commencer !")
         self._no_recent_label.setObjectName("page_subtitle")
         self._no_recent_label.setWordWrap(True)
         self._recent_container.addWidget(self._no_recent_label)
@@ -142,29 +142,29 @@ class HomePage(QWidget):
         layout.addStretch()
 
     def refresh(self) -> None:
-        """Refresh all dashboard data."""
-        # Firmware status
+        """Rafra\u00eechir toutes les donn\u00e9es du tableau de bord."""
+        # Statut du firmware
         fw_info = self._firmware_mgr.get_installed_firmware()
         if fw_info and fw_info.is_valid:
-            version = fw_info.version or "Unknown version"
-            self._fw_card.update_value(f"v{version} Installed", "success")
+            version = fw_info.version or "Version inconnue"
+            self._fw_card.update_value(f"v{version} Install\u00e9", "success")
         else:
-            self._fw_card.update_value("Not Installed", "danger")
+            self._fw_card.update_value("Non install\u00e9", "danger")
 
-        # Emulator status
+        # Statut de l'emulateur
         if self._emulator_mgr.is_installed():
-            self._emu_card.update_value("Detected", "success")
+            self._emu_card.update_value("D\u00e9tect\u00e9", "success")
         else:
-            self._emu_card.update_value("Not Found", "danger")
+            self._emu_card.update_value("Non trouv\u00e9", "danger")
 
-        # Games count
+        # Nombre de jeux
         count = self._game_lib.count
         self._games_card.update_value(
-            f"{count} game{'s' if count != 1 else ''}",
+            f"{count} jeu{'x' if count > 1 else ''}",
             "success" if count > 0 else "normal",
         )
 
-        # Recent games
+        # Jeux recents
         self._update_recent_games()
 
     def _update_recent_games(self) -> None:
@@ -198,7 +198,7 @@ class HomePage(QWidget):
 
                 if game.last_played:
                     date_str = game.last_played[:10]
-                    date_label = QLabel(f"Last played: {date_str}")
+                    date_label = QLabel(f"Derni\u00e8re partie : {date_str}")
                     date_label.setStyleSheet("color: #8888aa; font-size: 11px;")
                     row_layout.addWidget(date_label)
 

@@ -1,4 +1,4 @@
-"""Main application window with sidebar navigation."""
+"""Fenetre principale de l'application avec navigation laterale."""
 
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import (
@@ -24,10 +24,10 @@ from src.styles import COLORS, MAIN_STYLESHEET
 
 
 NAV_ITEMS = [
-    ("home", "Home"),
+    ("home", "Accueil"),
     ("firmware", "Firmware"),
-    ("library", "Library"),
-    ("settings", "Settings"),
+    ("library", "Biblioth\u00e8que"),
+    ("settings", "Param\u00e8tres"),
 ]
 
 NAV_ICONS = {
@@ -39,11 +39,11 @@ NAV_ICONS = {
 
 
 class MainWindow(QMainWindow):
-    """Main application window with PS4-styled sidebar and page stack."""
+    """Fenetre principale avec barre laterale style PS4."""
 
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("PS4 Emu Launcher - shadPS4 Frontend")
+        self.setWindowTitle("Flux4 - Lanceur PS4")
         self.setMinimumSize(1100, 700)
         self.resize(1200, 780)
 
@@ -76,16 +76,16 @@ class MainWindow(QMainWindow):
         sidebar_layout.setContentsMargins(0, 0, 0, 0)
         sidebar_layout.setSpacing(0)
 
-        # Logo area
-        logo_label = QLabel("PS4 Emu Launcher")
+        # Zone logo
+        logo_label = QLabel("FLUX4")
         logo_label.setObjectName("sidebar_title")
         sidebar_layout.addWidget(logo_label)
 
-        subtitle_label = QLabel("shadPS4 Frontend v1.0")
+        subtitle_label = QLabel("Lanceur PS4 v1.0")
         subtitle_label.setObjectName("sidebar_subtitle")
         sidebar_layout.addWidget(subtitle_label)
 
-        # Navigation buttons
+        # Boutons de navigation
         for key, label in NAV_ITEMS:
             icon = NAV_ICONS.get(key, "")
             btn = QPushButton(f"  {icon}  {label}")
@@ -98,7 +98,7 @@ class MainWindow(QMainWindow):
 
         sidebar_layout.addStretch()
 
-        # Version info at bottom of sidebar
+        # Version en bas de la barre laterale
         version_label = QLabel("  v1.0.0")
         version_label.setStyleSheet(
             f"color: {COLORS['text_muted']}; font-size: 10px; padding: 10px 16px;"
@@ -107,7 +107,7 @@ class MainWindow(QMainWindow):
 
         main_layout.addWidget(sidebar)
 
-        # Page container
+        # Conteneur de pages
         page_container = QFrame()
         page_container.setObjectName("page_container")
         page_layout = QVBoxLayout(page_container)
@@ -116,7 +116,7 @@ class MainWindow(QMainWindow):
         self._stack = QStackedWidget()
         page_layout.addWidget(self._stack)
 
-        # Create pages
+        # Creer les pages
         self._home_page = HomePage(
             self._config, self._firmware_mgr, self._emulator_mgr, self._game_lib
         )
@@ -139,13 +139,13 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(page_container)
 
     def _navigate_to(self, page_key: str) -> None:
-        """Navigate to a specific page."""
+        """Naviguer vers une page specifique."""
         if page_key not in self._pages:
             return
 
         self._current_page = page_key
 
-        # Update nav button styles
+        # Mettre a jour les styles des boutons
         for key, btn in self._nav_buttons.items():
             if key == page_key:
                 btn.setObjectName("nav_button_active")
@@ -153,7 +153,7 @@ class MainWindow(QMainWindow):
                 btn.setObjectName("nav_button")
             btn.setStyleSheet("")  # force re-apply of stylesheet
 
-        # Switch page and refresh
+        # Changer de page et rafraichir
         page = self._pages[page_key]
         self._stack.setCurrentWidget(page)
         if hasattr(page, "refresh"):
