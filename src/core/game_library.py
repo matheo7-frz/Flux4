@@ -192,7 +192,10 @@ class GameLibrary:
                 val_off = struct.unpack_from("<I", data, entry_off + 12)[0]
 
                 key_start = key_offset + key_off
-                key_end = data.index(b"\x00", key_start)
+                try:
+                    key_end = data.index(b"\x00", key_start)
+                except ValueError:
+                    continue
                 key = data[key_start:key_end].decode("utf-8", errors="ignore")
 
                 val_start = data_offset + val_off
