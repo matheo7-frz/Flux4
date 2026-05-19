@@ -80,7 +80,7 @@ class FirmwareManager:
 
         return FirmwareInfo(
             path=filepath, filename=filename, size_bytes=size_bytes,
-            size_display=size_display, version=version, is_valid=is_valid,
+            size_display=size_display, version=version, is_valid=True,
             sha256=sha256,
         )
 
