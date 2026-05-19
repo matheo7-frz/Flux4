@@ -1,5 +1,7 @@
 """Page d'accueil/Tableau de bord affichant l'etat du systeme et les actions rapides."""
 
+import webbrowser
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QFrame,
@@ -15,6 +17,8 @@ from src.core.config import Config
 from src.core.emulator_manager import EmulatorManager
 from src.core.firmware_manager import FirmwareManager
 from src.core.game_library import GameLibrary
+from src.core.updater import UpdateInfo
+from src.styles import COLORS
 
 
 class StatusCard(QFrame):
@@ -48,7 +52,7 @@ class StatusCard(QFrame):
             "normal": "card_value",
         }
         self._value_label.setObjectName(style_map.get(status, "card_value"))
-        self._value_label.setStyleSheet("")  # force re-apply
+        self._value_label.setStyleSheet("")
 
 
 class HomePage(QWidget):
@@ -68,6 +72,7 @@ class HomePage(QWidget):
         self._firmware_mgr = firmware_mgr
         self._emulator_mgr = emulator_mgr
         self._game_lib = game_lib
+        self._update_info: UpdateInfo | None = None
         self._setup_ui()
 
     def _setup_ui(self) -> None:
@@ -83,7 +88,35 @@ class HomePage(QWidget):
         subtitle.setObjectName("page_subtitle")
         layout.addWidget(subtitle)
 
-        # Status cards
+        # Banniere de mise a jour
+        self._update_banner = QFrame()
+        self._update_banner.setVisible(False)
+        self._update_banner.setStyleSheet(
+            f"background-color: rgba(46, 204, 113, 0.15); "
+            f"border: 1px solid {COLORS['success']}; "
+            f"border-radius: 8px; padding: 12px;"
+        )
+        banner_layout = QHBoxLayout(self._update_banner)
+        banner_layout.setContentsMargins(12, 8, 12, 8)
+
+        self._update_label = QLabel("")
+        self._update_label.setStyleSheet(
+            f"color: {COLORS['success']}; font-weight: bold; font-size: 13px;"
+        )
+        banner_layout.addWidget(self._update_label)
+
+        banner_layout.addStretch()
+
+        self._update_dl_btn = QPushButton("T\u00e9l\u00e9charger")
+        self._update_dl_btn.setStyleSheet(
+            f"background-color: {COLORS['success']}; color: #000; "
+            f"font-weight: bold; padding: 6px 16px; border-radius: 4px;"
+        )
+        banner_layout.addWidget(self._update_dl_btn)
+
+        layout.addWidget(self._update_banner)
+
+        # Cartes de statut
         cards_layout = QGridLayout()
         cards_layout.setSpacing(15)
 
@@ -141,9 +174,20 @@ class HomePage(QWidget):
 
         layout.addStretch()
 
+    def set_update_info(self, info: UpdateInfo) -> None:
+        """Afficher la banniere de mise a jour."""
+        self._update_info = info
+        self._update_banner.setVisible(True)
+        self._update_label.setText(
+            f"Nouvelle version v{info.latest_version} disponible ! "
+            f"(vous avez v{info.current_version})"
+        )
+        self._update_dl_btn.clicked.connect(
+            lambda: webbrowser.open(info.release_url)
+        )
+
     def refresh(self) -> None:
         """Rafra\u00eechir toutes les donn\u00e9es du tableau de bord."""
-        # Statut du firmware
         fw_info = self._firmware_mgr.get_installed_firmware()
         if fw_info and fw_info.is_valid:
             version = fw_info.version or "Version inconnue"
@@ -151,27 +195,23 @@ class HomePage(QWidget):
         else:
             self._fw_card.update_value("Non install\u00e9", "danger")
 
-        # Statut de l'emulateur
         if self._emulator_mgr.is_installed():
             self._emu_card.update_value("D\u00e9tect\u00e9", "success")
         else:
             self._emu_card.update_value("Non trouv\u00e9", "danger")
 
-        # Nombre de jeux
         count = self._game_lib.count
         self._games_card.update_value(
             f"{count} jeu{'x' if count > 1 else ''}",
             "success" if count > 0 else "normal",
         )
 
-        # Jeux recents
         self._update_recent_games()
 
     def _update_recent_games(self) -> None:
         recent_ids = self._config.get("recent_games", [])
         has_recent = False
 
-        # Clear old widgets from recent container (except no_recent_label)
         while self._recent_container.count() > 1:
             item = self._recent_container.takeAt(1)
             if item.widget():
@@ -191,7 +231,7 @@ class HomePage(QWidget):
                 row_layout.addWidget(name_label)
 
                 id_label = QLabel(game.title_id)
-                id_label.setStyleSheet(f"color: #8888aa; font-size: 11px;")
+                id_label.setStyleSheet("color: #8888aa; font-size: 11px;")
                 row_layout.addWidget(id_label)
 
                 row_layout.addStretch()

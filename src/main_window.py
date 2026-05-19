@@ -1,6 +1,9 @@
-"""Fenetre principale de l'application avec navigation laterale."""
+"""Fenetre principale de l'application avec navigation laterale et fonctions systeme."""
 
-from PySide6.QtCore import Qt, QSize
+import threading
+import webbrowser
+
+from PySide6.QtCore import Qt, QTimer, Signal, QObject
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -16,6 +19,7 @@ from src.core.config import Config
 from src.core.emulator_manager import EmulatorManager
 from src.core.firmware_manager import FirmwareManager
 from src.core.game_library import GameLibrary
+from src.core.updater import APP_VERSION, check_for_updates, UpdateInfo
 from src.pages.firmware import FirmwarePage
 from src.pages.home import HomePage
 from src.pages.library import LibraryPage
@@ -26,8 +30,8 @@ from src.styles import COLORS, MAIN_STYLESHEET
 NAV_ITEMS = [
     ("home", "Accueil"),
     ("firmware", "Firmware"),
-    ("library", "Biblioth\u00e8que"),
-    ("settings", "Param\u00e8tres"),
+    ("library", "Bibliothèque"),
+    ("settings", "Paramètres"),
 ]
 
 NAV_ICONS = {
@@ -36,6 +40,12 @@ NAV_ICONS = {
     "library": "\u25a6",
     "settings": "\u2630",
 }
+
+
+class _UpdateSignal(QObject):
+    """Signal pour communiquer les resultats de mise a jour depuis un thread."""
+
+    update_checked = Signal(object)
 
 
 class MainWindow(QMainWindow):
@@ -49,7 +59,6 @@ class MainWindow(QMainWindow):
 
         self.setStyleSheet(MAIN_STYLESHEET)
 
-        # Initialize core services
         self._config = Config()
         self._firmware_mgr = FirmwareManager(self._config)
         self._emulator_mgr = EmulatorManager(self._config)
@@ -57,9 +66,15 @@ class MainWindow(QMainWindow):
 
         self._nav_buttons: dict[str, QPushButton] = {}
         self._current_page = "home"
+        self._update_signal = _UpdateSignal()
+        self._update_signal.update_checked.connect(self._on_update_result)
 
         self._setup_ui()
         self._navigate_to("home")
+
+        QTimer.singleShot(500, self._auto_scan_games)
+        if self._config.check_updates:
+            QTimer.singleShot(1000, self._check_for_updates)
 
     def _setup_ui(self) -> None:
         central = QWidget()
@@ -69,23 +84,20 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # Sidebar
         sidebar = QFrame()
         sidebar.setObjectName("sidebar")
         sidebar_layout = QVBoxLayout(sidebar)
         sidebar_layout.setContentsMargins(0, 0, 0, 0)
         sidebar_layout.setSpacing(0)
 
-        # Zone logo
         logo_label = QLabel("FLUX4")
         logo_label.setObjectName("sidebar_title")
         sidebar_layout.addWidget(logo_label)
 
-        subtitle_label = QLabel("Lanceur PS4 v1.0")
+        subtitle_label = QLabel("Lanceur PS4")
         subtitle_label.setObjectName("sidebar_subtitle")
         sidebar_layout.addWidget(subtitle_label)
 
-        # Boutons de navigation
         for key, label in NAV_ITEMS:
             icon = NAV_ICONS.get(key, "")
             btn = QPushButton(f"  {icon}  {label}")
@@ -98,8 +110,16 @@ class MainWindow(QMainWindow):
 
         sidebar_layout.addStretch()
 
-        # Version en bas de la barre laterale
-        version_label = QLabel("  v1.0.0")
+        self._update_btn = QPushButton("  Mise à jour disponible !")
+        self._update_btn.setVisible(False)
+        self._update_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._update_btn.setStyleSheet(
+            f"background-color: {COLORS['success']}; color: #000; "
+            f"font-weight: bold; margin: 8px; border-radius: 6px; padding: 8px;"
+        )
+        sidebar_layout.addWidget(self._update_btn)
+
+        version_label = QLabel(f"  v{APP_VERSION}")
         version_label.setStyleSheet(
             f"color: {COLORS['text_muted']}; font-size: 10px; padding: 10px 16px;"
         )
@@ -107,7 +127,6 @@ class MainWindow(QMainWindow):
 
         main_layout.addWidget(sidebar)
 
-        # Conteneur de pages
         page_container = QFrame()
         page_container.setObjectName("page_container")
         page_layout = QVBoxLayout(page_container)
@@ -116,7 +135,6 @@ class MainWindow(QMainWindow):
         self._stack = QStackedWidget()
         page_layout.addWidget(self._stack)
 
-        # Creer les pages
         self._home_page = HomePage(
             self._config, self._firmware_mgr, self._emulator_mgr, self._game_lib
         )
@@ -145,16 +163,41 @@ class MainWindow(QMainWindow):
 
         self._current_page = page_key
 
-        # Mettre a jour les styles des boutons
         for key, btn in self._nav_buttons.items():
             if key == page_key:
                 btn.setObjectName("nav_button_active")
             else:
                 btn.setObjectName("nav_button")
-            btn.setStyleSheet("")  # force re-apply of stylesheet
+            btn.setStyleSheet("")
 
-        # Changer de page et rafraichir
         page = self._pages[page_key]
         self._stack.setCurrentWidget(page)
         if hasattr(page, "refresh"):
             page.refresh()
+
+    def _auto_scan_games(self) -> None:
+        """Scanner automatiquement le dossier de jeux au demarrage."""
+        scan_dir = self._config.auto_scan_directory
+        if not scan_dir:
+            scan_dir = self._config.games_directory
+        if scan_dir:
+            self._game_lib.scan_directory(scan_dir)
+
+    def _check_for_updates(self) -> None:
+        """Verifier les mises a jour en arriere-plan."""
+        def _do_check() -> None:
+            result = check_for_updates()
+            self._update_signal.update_checked.emit(result)
+
+        thread = threading.Thread(target=_do_check, daemon=True)
+        thread.start()
+
+    def _on_update_result(self, info: UpdateInfo) -> None:
+        """Traiter le resultat de la verification de mise a jour."""
+        if info.available:
+            self._update_btn.setVisible(True)
+            self._update_btn.setText(f"  v{info.latest_version} disponible !")
+            self._update_btn.clicked.connect(
+                lambda: webbrowser.open(info.release_url)
+            )
+            self._home_page.set_update_info(info)

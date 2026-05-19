@@ -1,4 +1,4 @@
-"""Configuration management for PS4 Emu Launcher."""
+"""Gestion de la configuration de Flux4."""
 
 import json
 import os
@@ -16,14 +16,17 @@ DEFAULT_CONFIG = {
     "resolution": "1920x1080",
     "fullscreen": False,
     "log_level": "Info",
-    "language": "English",
+    "language": "Français",
     "recent_games": [],
     "theme": "dark",
+    "auto_scan_directory": "",
+    "check_updates": True,
+    "app_version": "1.0.0",
 }
 
 
 class Config:
-    """Manages application configuration stored as JSON."""
+    """Gère la configuration de l'application stockée en JSON."""
 
     def __init__(self) -> None:
         self._config_dir = Path.home() / ".ps4-emu-launcher"
@@ -104,3 +107,19 @@ class Config:
     @firmware_version.setter
     def firmware_version(self, value: str) -> None:
         self.set("firmware_version", value)
+
+    @property
+    def auto_scan_directory(self) -> str:
+        return self._data.get("auto_scan_directory", "")
+
+    @auto_scan_directory.setter
+    def auto_scan_directory(self, value: str) -> None:
+        self.set("auto_scan_directory", value)
+
+    @property
+    def check_updates(self) -> bool:
+        return self._data.get("check_updates", True)
+
+    @check_updates.setter
+    def check_updates(self, value: bool) -> None:
+        self.set("check_updates", value)

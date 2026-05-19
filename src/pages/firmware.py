@@ -1,5 +1,7 @@
 """Page de gestion du firmware : importer, valider et gerer le firmware PS4."""
 
+import webbrowser
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -11,6 +13,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+PS4_FIRMWARE_URL = "https://www.playstation.com/fr-fr/support/hardware/ps4/system-software/"
 
 from src.core.config import Config
 from src.core.firmware_manager import FirmwareManager
@@ -111,9 +115,8 @@ class FirmwarePage(QWidget):
         layout.addWidget(help_title)
 
         help_text = QLabel(
-            "1. Vous avez besoin d'un fichier PS4UPDATE.PUP (le fichier officiel de mise \u00e0 jour syst\u00e8me PS4).\n\n"
-            "2. Ces fichiers peuvent \u00eatre obtenus depuis votre propre console PS4 ou depuis le site officiel "
-            "de PlayStation pour la r\u00e9cup\u00e9ration.\n\n"
+            "1. Allez sur le site officiel PlayStation pour t\u00e9l\u00e9charger le firmware.\n\n"
+            "2. Cherchez 'Fichier de mise \u00e0 jour de r\u00e9installation' (PS4UPDATE.PUP).\n\n"
             "3. Le fichier fait g\u00e9n\u00e9ralement entre 500 Mo et 1,1 Go selon la version.\n\n"
             "4. Cliquez sur 'Importer le Firmware' ci-dessus et s\u00e9lectionnez votre fichier .PUP. "
             "Le lanceur le validera et l'installera automatiquement.\n\n"
@@ -125,6 +128,16 @@ class FirmwarePage(QWidget):
             f"color: {COLORS['text_secondary']}; font-size: 12px; line-height: 1.6;"
         )
         layout.addWidget(help_text)
+
+        # Lien vers le site officiel PlayStation
+        link_layout = QHBoxLayout()
+        link_layout.setSpacing(10)
+        btn_official = QPushButton("  T\u00e9l\u00e9charger depuis le site officiel PlayStation")
+        btn_official.setMinimumHeight(44)
+        btn_official.clicked.connect(self._open_official_firmware_page)
+        link_layout.addWidget(btn_official)
+        link_layout.addStretch()
+        layout.addLayout(link_layout)
 
         layout.addStretch()
 
@@ -184,6 +197,10 @@ class FirmwarePage(QWidget):
             )
 
         self.refresh()
+
+    def _open_official_firmware_page(self) -> None:
+        """Ouvrir le site officiel PlayStation pour télécharger le firmware."""
+        webbrowser.open(PS4_FIRMWARE_URL)
 
     def _uninstall_firmware(self) -> None:
         reply = QMessageBox.question(

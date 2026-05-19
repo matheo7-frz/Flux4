@@ -112,6 +112,28 @@ class SettingsPage(QWidget):
 
         layout.addLayout(games_layout)
 
+        self._add_field_label(layout, "Dossier de scan automatique (les jeux sont d\u00e9tect\u00e9s au d\u00e9marrage)")
+
+        auto_scan_layout = QHBoxLayout()
+        self._auto_scan_input = QLineEdit()
+        self._auto_scan_input.setPlaceholderText("Dossier \u00e0 scanner automatiquement au d\u00e9marrage...")
+        self._auto_scan_input.setReadOnly(True)
+        auto_scan_layout.addWidget(self._auto_scan_input)
+
+        btn_browse_auto = QPushButton("Parcourir")
+        btn_browse_auto.setObjectName("btn_secondary")
+        btn_browse_auto.setFixedWidth(100)
+        btn_browse_auto.clicked.connect(self._browse_auto_scan_dir)
+        auto_scan_layout.addWidget(btn_browse_auto)
+
+        btn_clear_auto = QPushButton("Effacer")
+        btn_clear_auto.setObjectName("btn_secondary")
+        btn_clear_auto.setFixedWidth(100)
+        btn_clear_auto.clicked.connect(self._clear_auto_scan_dir)
+        auto_scan_layout.addWidget(btn_clear_auto)
+
+        layout.addLayout(auto_scan_layout)
+
         self._add_separator(layout)
 
         # Graphics settings
@@ -140,6 +162,17 @@ class SettingsPage(QWidget):
             lambda s: self._config.set("fullscreen", s == Qt.CheckState.Checked.value)
         )
         layout.addWidget(self._fullscreen_check)
+
+        self._add_separator(layout)
+
+        # Updates section
+        self._add_section(layout, "Mises \u00e0 jour")
+
+        self._check_updates_check = QCheckBox("V\u00e9rifier les mises \u00e0 jour au d\u00e9marrage")
+        self._check_updates_check.stateChanged.connect(
+            lambda s: self._config.set("check_updates", s == Qt.CheckState.Checked.value)
+        )
+        layout.addWidget(self._check_updates_check)
 
         self._add_separator(layout)
 
@@ -179,6 +212,7 @@ class SettingsPage(QWidget):
             self._emu_status.setStyleSheet(f"color: {COLORS['danger']}; font-weight: bold;")
 
         self._games_dir_input.setText(self._config.games_directory)
+        self._auto_scan_input.setText(self._config.auto_scan_directory)
 
         gpu = self._config.get("gpu_backend", "Vulkan")
         idx = self._gpu_combo.findText(gpu)
@@ -191,6 +225,7 @@ class SettingsPage(QWidget):
             self._res_combo.setCurrentIndex(idx)
 
         self._fullscreen_check.setChecked(self._config.get("fullscreen", False))
+        self._check_updates_check.setChecked(self._config.get("check_updates", True))
 
         log_level = self._config.get("log_level", "Info")
         idx = self._log_combo.findText(log_level)
@@ -228,6 +263,20 @@ class SettingsPage(QWidget):
                 "shadPS4 n'a pas \u00e9t\u00e9 trouv\u00e9 sur votre syst\u00e8me.\n\n"
                 "Veuillez le t\u00e9l\u00e9charger depuis GitHub ou d\u00e9finir le chemin manuellement.",
             )
+
+    def _browse_auto_scan_dir(self) -> None:
+        directory = QFileDialog.getExistingDirectory(
+            self,
+            "S\u00e9lectionner le dossier de scan automatique",
+            self._config.auto_scan_directory or self._config.games_directory or "",
+        )
+        if directory:
+            self._config.auto_scan_directory = directory
+            self._auto_scan_input.setText(directory)
+
+    def _clear_auto_scan_dir(self) -> None:
+        self._config.auto_scan_directory = ""
+        self._auto_scan_input.setText("")
 
     def _browse_games_dir(self) -> None:
         directory = QFileDialog.getExistingDirectory(
