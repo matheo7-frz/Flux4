@@ -10,7 +10,7 @@ from pathlib import Path
 from src.core.config import Config
 
 
-PUP_MAGIC = b"\x4F\x15\x3D\x1D"
+MIN_PUP_SIZE = 50 * 1024 * 1024  # 50 MB minimum for a real firmware
 KNOWN_VERSIONS = {
     "1.00", "1.01", "1.50", "1.51", "1.52", "1.70", "1.71", "1.76",
     "2.00", "2.01", "2.02", "2.03", "2.04", "2.50", "2.51", "2.55", "2.57",
@@ -67,32 +67,15 @@ class FirmwareManager:
                 sha256="", error="Not a .PUP file",
             )
 
-        if size_bytes < 16:
-            return FirmwareInfo(
-                path=filepath, filename=filename, size_bytes=size_bytes,
-                size_display=size_display, version="", is_valid=False,
-                sha256="", error="File too small to be a valid firmware",
-            )
-
         sha256 = self._compute_sha256(filepath)
         version = self._detect_version(filepath)
-        is_valid = True
 
-        try:
-            with open(filepath, "rb") as f:
-                magic = f.read(4)
-                if magic != PUP_MAGIC:
-                    return FirmwareInfo(
-                        path=filepath, filename=filename, size_bytes=size_bytes,
-                        size_display=size_display, version=version, is_valid=False,
-                        sha256=sha256,
-                        error="Invalid PUP magic bytes (not a valid PS4 firmware)",
-                    )
-        except OSError as e:
+        if size_bytes < MIN_PUP_SIZE:
             return FirmwareInfo(
                 path=filepath, filename=filename, size_bytes=size_bytes,
                 size_display=size_display, version=version, is_valid=False,
-                sha256=sha256, error=f"Read error: {e}",
+                sha256=sha256,
+                error=f"Fichier trop petit ({size_display}). Un firmware PS4 fait au moins 50 Mo.",
             )
 
         return FirmwareInfo(
