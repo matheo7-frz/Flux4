@@ -1,7 +1,8 @@
-"""Fenetre principale de l'application avec navigation laterale et fonctions systeme."""
+"""Fenetre principale avec navigation horizontale style PS4 XMB."""
 
 import threading
 import webbrowser
+from datetime import datetime
 
 from PySide6.QtCore import Qt, QTimer, Signal, QObject
 from PySide6.QtWidgets import (
@@ -20,7 +21,6 @@ from src.core.emulator_manager import EmulatorManager
 from src.core.firmware_manager import FirmwareManager
 from src.core.game_library import GameLibrary
 from src.core.updater import APP_VERSION, check_for_updates, UpdateInfo
-from src.pages.firmware import FirmwarePage
 from src.pages.home import HomePage
 from src.pages.library import LibraryPage
 from src.pages.settings import SettingsPage
@@ -28,18 +28,10 @@ from src.styles import COLORS, MAIN_STYLESHEET
 
 
 NAV_ITEMS = [
-    ("home", "Accueil"),
-    ("firmware", "Firmware"),
-    ("library", "Bibliothèque"),
-    ("settings", "Paramètres"),
+    ("home", "Accueil", "\u25b6"),
+    ("library", "Biblioth\u00e8que", "\u25a6"),
+    ("settings", "Param\u00e8tres", "\u2699"),
 ]
-
-NAV_ICONS = {
-    "home": "\u2302",
-    "firmware": "\u2699",
-    "library": "\u25a6",
-    "settings": "\u2630",
-}
 
 
 class _UpdateSignal(QObject):
@@ -49,13 +41,13 @@ class _UpdateSignal(QObject):
 
 
 class MainWindow(QMainWindow):
-    """Fenetre principale avec barre laterale style PS4."""
+    """Fenetre principale avec menu horizontal style PS4."""
 
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("Flux4 - Lanceur PS4")
-        self.setMinimumSize(1100, 700)
-        self.resize(1200, 780)
+        self.setWindowTitle("FLUX4 - Lanceur PS4")
+        self.setMinimumSize(1000, 650)
+        self.resize(1100, 720)
 
         self.setStyleSheet(MAIN_STYLESHEET)
 
@@ -76,77 +68,100 @@ class MainWindow(QMainWindow):
         if self._config.check_updates:
             QTimer.singleShot(1000, self._check_for_updates)
 
+        self._clock_timer = QTimer()
+        self._clock_timer.timeout.connect(self._update_clock)
+        self._clock_timer.start(30000)
+
     def _setup_ui(self) -> None:
         central = QWidget()
         self.setCentralWidget(central)
 
-        main_layout = QHBoxLayout(central)
+        main_layout = QVBoxLayout(central)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        sidebar = QFrame()
-        sidebar.setObjectName("sidebar")
-        sidebar_layout = QVBoxLayout(sidebar)
-        sidebar_layout.setContentsMargins(0, 0, 0, 0)
-        sidebar_layout.setSpacing(0)
+        # === BARRE SUPERIEURE ===
+        top_bar = QFrame()
+        top_bar.setObjectName("top_bar")
+        top_bar_layout = QHBoxLayout(top_bar)
+        top_bar_layout.setContentsMargins(0, 0, 0, 0)
+        top_bar_layout.setSpacing(0)
 
-        logo_label = QLabel("FLUX4")
-        logo_label.setObjectName("sidebar_title")
-        sidebar_layout.addWidget(logo_label)
+        title_label = QLabel("FLUX4")
+        title_label.setObjectName("top_bar_title")
+        top_bar_layout.addWidget(title_label)
 
-        subtitle_label = QLabel("Lanceur PS4")
-        subtitle_label.setObjectName("sidebar_subtitle")
-        sidebar_layout.addWidget(subtitle_label)
+        top_bar_layout.addStretch()
 
-        for key, label in NAV_ITEMS:
-            icon = NAV_ICONS.get(key, "")
-            btn = QPushButton(f"  {icon}  {label}")
-            btn.setObjectName("nav_button")
+        self._update_top_label = QLabel("")
+        self._update_top_label.setVisible(False)
+        self._update_top_label.setStyleSheet(
+            f"color: {COLORS['success']}; font-size: 11px; "
+            f"font-weight: bold; padding-right: 12px;"
+        )
+        self._update_top_label.setCursor(Qt.CursorShape.PointingHandCursor)
+        top_bar_layout.addWidget(self._update_top_label)
+
+        self._clock_label = QLabel(datetime.now().strftime("%H:%M"))
+        self._clock_label.setObjectName("top_bar_info")
+        top_bar_layout.addWidget(self._clock_label)
+
+        main_layout.addWidget(top_bar)
+
+        # === ZONE DE NAVIGATION HORIZONTALE ===
+        nav_area = QFrame()
+        nav_area.setObjectName("nav_strip")
+        nav_area_layout = QVBoxLayout(nav_area)
+        nav_area_layout.setContentsMargins(30, 10, 30, 0)
+        nav_area_layout.setSpacing(6)
+
+        icons_row = QHBoxLayout()
+        icons_row.setSpacing(14)
+        icons_row.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        for key, label, icon in NAV_ITEMS:
+            btn = QPushButton(f"{icon}\n{label}")
+            btn.setObjectName("nav_icon_btn")
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            btn.setMinimumHeight(44)
-            btn.clicked.connect(lambda checked=False, k=key: self._navigate_to(k))
-            sidebar_layout.addWidget(btn)
+            btn.setFixedSize(82, 82)
+            btn.clicked.connect(
+                lambda checked=False, k=key: self._navigate_to(k)
+            )
+            icons_row.addWidget(btn)
             self._nav_buttons[key] = btn
 
-        sidebar_layout.addStretch()
+        nav_area_layout.addLayout(icons_row)
 
-        self._update_btn = QPushButton("  Mise à jour disponible !")
-        self._update_btn.setVisible(False)
-        self._update_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._update_btn.setStyleSheet(
-            f"background-color: {COLORS['success']}; color: #000; "
-            f"font-weight: bold; margin: 8px; border-radius: 6px; padding: 8px;"
-        )
-        sidebar_layout.addWidget(self._update_btn)
+        self._selected_label = QLabel("Accueil")
+        self._selected_label.setObjectName("nav_selected_label")
+        self._selected_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        nav_area_layout.addWidget(self._selected_label)
 
-        version_label = QLabel(f"  v{APP_VERSION}")
-        version_label.setStyleSheet(
-            f"color: {COLORS['text_muted']}; font-size: 10px; padding: 10px 16px;"
-        )
-        sidebar_layout.addWidget(version_label)
+        main_layout.addWidget(nav_area)
 
-        main_layout.addWidget(sidebar)
-
-        page_container = QFrame()
-        page_container.setObjectName("page_container")
-        page_layout = QVBoxLayout(page_container)
-        page_layout.setContentsMargins(0, 0, 0, 0)
+        # === ZONE DE CONTENU ===
+        content_area = QFrame()
+        content_area.setObjectName("content_area")
+        content_layout = QVBoxLayout(content_area)
+        content_layout.setContentsMargins(0, 0, 0, 0)
 
         self._stack = QStackedWidget()
-        page_layout.addWidget(self._stack)
+        content_layout.addWidget(self._stack)
 
         self._home_page = HomePage(
             self._config, self._firmware_mgr, self._emulator_mgr, self._game_lib
         )
         self._home_page.navigate_to.connect(self._navigate_to)
 
-        self._firmware_page = FirmwarePage(self._config, self._firmware_mgr)
-        self._library_page = LibraryPage(self._config, self._game_lib, self._emulator_mgr)
-        self._settings_page = SettingsPage(self._config, self._emulator_mgr)
+        self._library_page = LibraryPage(
+            self._config, self._game_lib, self._emulator_mgr
+        )
+        self._settings_page = SettingsPage(
+            self._config, self._emulator_mgr, self._firmware_mgr
+        )
 
         self._pages = {
             "home": self._home_page,
-            "firmware": self._firmware_page,
             "library": self._library_page,
             "settings": self._settings_page,
         }
@@ -154,7 +169,26 @@ class MainWindow(QMainWindow):
         for page in self._pages.values():
             self._stack.addWidget(page)
 
-        main_layout.addWidget(page_container)
+        main_layout.addWidget(content_area, 1)
+
+        # === BARRE INFERIEURE ===
+        bottom_bar = QFrame()
+        bottom_bar.setObjectName("bottom_bar")
+        bottom_bar_layout = QHBoxLayout(bottom_bar)
+        bottom_bar_layout.setContentsMargins(0, 0, 0, 0)
+        bottom_bar_layout.setSpacing(0)
+
+        self._fw_status_label = QLabel("")
+        self._fw_status_label.setObjectName("bottom_bar_status")
+        bottom_bar_layout.addWidget(self._fw_status_label)
+
+        bottom_bar_layout.addStretch()
+
+        version_label = QLabel(f"FLUX4 v{APP_VERSION}")
+        version_label.setObjectName("bottom_bar_text")
+        bottom_bar_layout.addWidget(version_label)
+
+        main_layout.addWidget(bottom_bar)
 
     def _navigate_to(self, page_key: str) -> None:
         """Naviguer vers une page specifique."""
@@ -165,15 +199,40 @@ class MainWindow(QMainWindow):
 
         for key, btn in self._nav_buttons.items():
             if key == page_key:
-                btn.setObjectName("nav_button_active")
+                btn.setObjectName("nav_icon_btn_active")
             else:
-                btn.setObjectName("nav_button")
+                btn.setObjectName("nav_icon_btn")
             btn.setStyleSheet("")
+
+        label_map = {item[0]: item[1] for item in NAV_ITEMS}
+        self._selected_label.setText(label_map.get(page_key, ""))
 
         page = self._pages[page_key]
         self._stack.setCurrentWidget(page)
         if hasattr(page, "refresh"):
             page.refresh()
+
+        self._update_firmware_status()
+
+    def _update_firmware_status(self) -> None:
+        """Mettre a jour le statut du firmware dans la barre inferieure."""
+        fw_info = self._firmware_mgr.get_installed_firmware()
+        if fw_info and fw_info.is_valid:
+            version = fw_info.version or "?"
+            self._fw_status_label.setText(f"Firmware : v{version}")
+            self._fw_status_label.setStyleSheet(
+                f"color: {COLORS['success']}; font-size: 11px; "
+                f"padding: 0px 20px; font-weight: bold;"
+            )
+        else:
+            self._fw_status_label.setText("Firmware : Non install\u00e9")
+            self._fw_status_label.setStyleSheet(
+                f"color: {COLORS['danger']}; font-size: 11px; "
+                f"padding: 0px 20px;"
+            )
+
+    def _update_clock(self) -> None:
+        self._clock_label.setText(datetime.now().strftime("%H:%M"))
 
     def _auto_scan_games(self) -> None:
         """Scanner automatiquement le dossier de jeux au demarrage."""
@@ -195,9 +254,11 @@ class MainWindow(QMainWindow):
     def _on_update_result(self, info: UpdateInfo) -> None:
         """Traiter le resultat de la verification de mise a jour."""
         if info.available:
-            self._update_btn.setVisible(True)
-            self._update_btn.setText(f"  v{info.latest_version} disponible !")
-            self._update_btn.clicked.connect(
-                lambda: webbrowser.open(info.release_url)
+            self._update_top_label.setVisible(True)
+            self._update_top_label.setText(
+                f"\u2b06 v{info.latest_version} disponible"
+            )
+            self._update_top_label.mousePressEvent = (
+                lambda _: webbrowser.open(info.release_url)
             )
             self._home_page.set_update_info(info)

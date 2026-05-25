@@ -1,11 +1,10 @@
-"""Theme PS4 authentique - feuilles de style sombres pour l'application."""
+"""Theme PS4 authentique - style XMB horizontal pour l'application."""
 
 COLORS = {
     "bg_primary": "#003087",
     "bg_secondary": "#00246d",
     "bg_card": "#0d3f9e",
     "bg_card_hover": "#1a4fb8",
-    "bg_sidebar": "#001d5a",
     "bg_input": "#002470",
     "accent": "#00d4ff",
     "accent_hover": "#00b8e6",
@@ -21,6 +20,7 @@ COLORS = {
     "scrollbar_bg": "#001d5a",
     "scrollbar_handle": "#0050aa",
     "ps4_dark": "#00113a",
+    "ps4_mid": "#001d5a",
     "ps4_highlight": "#00d4ff",
 }
 
@@ -35,86 +35,118 @@ QWidget {{
     font-size: 13px;
 }}
 
-/* Barre laterale */
-#sidebar {{
+/* Barre superieure */
+#top_bar {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 {COLORS["ps4_dark"]},
-        stop:0.5 {COLORS["bg_sidebar"]},
-        stop:1 {COLORS["ps4_dark"]});
-    border-right: 2px solid {COLORS["ps4_highlight"]};
-    min-width: 240px;
-    max-width: 240px;
+        stop:0 rgba(0, 10, 40, 230),
+        stop:1 rgba(0, 17, 58, 200));
+    min-height: 44px;
+    max-height: 44px;
+    border-bottom: 1px solid rgba(0, 80, 170, 80);
 }}
 
-#sidebar_title {{
-    font-size: 22px;
+#top_bar_title {{
+    font-size: 18px;
     font-weight: bold;
     color: {COLORS["ps4_highlight"]};
-    padding: 24px 16px 2px 16px;
-    letter-spacing: 2px;
+    letter-spacing: 4px;
+    padding-left: 20px;
 }}
 
-#sidebar_subtitle {{
+#top_bar_info {{
+    font-size: 12px;
+    color: {COLORS["text_secondary"]};
+    padding-right: 20px;
+}}
+
+/* Zone de navigation horizontale */
+#nav_strip {{
+    background: transparent;
+    min-height: 120px;
+    max-height: 120px;
+}}
+
+#nav_icon_btn {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(13, 63, 158, 160),
+        stop:1 rgba(0, 36, 109, 160));
+    border: 2px solid rgba(0, 80, 170, 120);
+    border-radius: 10px;
+    color: {COLORS["text_secondary"]};
     font-size: 11px;
-    color: {COLORS["text_muted"]};
-    padding: 0px 16px 24px 16px;
+    padding: 4px;
+}}
+
+#nav_icon_btn:hover {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(26, 79, 184, 200),
+        stop:1 rgba(13, 63, 158, 200));
+    border-color: rgba(0, 212, 255, 120);
+    color: {COLORS["text_primary"]};
+}}
+
+#nav_icon_btn_active {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(0, 212, 255, 50),
+        stop:1 rgba(0, 150, 200, 25));
+    border: 2px solid {COLORS["ps4_highlight"]};
+    border-radius: 10px;
+    color: {COLORS["text_primary"]};
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px;
+}}
+
+#nav_selected_label {{
+    font-size: 22px;
+    font-weight: bold;
+    color: {COLORS["text_primary"]};
     letter-spacing: 1px;
 }}
 
-#nav_button {{
-    background: transparent;
-    border: none;
-    border-left: 3px solid transparent;
-    text-align: left;
-    padding: 14px 20px;
-    font-size: 15px;
-    color: {COLORS["text_secondary"]};
-    margin: 1px 0px;
-    letter-spacing: 0.5px;
-}}
-
-#nav_button:hover {{
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 rgba(0, 212, 255, 0.15),
-        stop:1 transparent);
-    color: {COLORS["text_primary"]};
-    border-left: 3px solid {COLORS["ps4_highlight"]};
-}}
-
-#nav_button_active {{
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 rgba(0, 212, 255, 0.25),
-        stop:1 rgba(0, 212, 255, 0.05));
-    border: none;
-    border-left: 3px solid {COLORS["ps4_highlight"]};
-    text-align: left;
-    padding: 14px 20px;
-    font-size: 15px;
-    color: {COLORS["text_primary"]};
-    font-weight: bold;
-    margin: 1px 0px;
-    letter-spacing: 0.5px;
-}}
-
-/* Pages */
-#page_container {{
+/* Zone de contenu principal */
+#content_area {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
         stop:0 {COLORS["bg_primary"]},
         stop:1 #001a4d);
+    border-top: 1px solid rgba(0, 80, 170, 60);
 }}
 
+/* Barre inferieure */
+#bottom_bar {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(0, 17, 58, 200),
+        stop:1 rgba(0, 10, 40, 230));
+    min-height: 32px;
+    max-height: 32px;
+    border-top: 1px solid rgba(0, 80, 170, 80);
+}}
+
+#bottom_bar_text {{
+    font-size: 11px;
+    color: {COLORS["text_muted"]};
+    padding: 0px 20px;
+}}
+
+#bottom_bar_status {{
+    font-size: 11px;
+    color: {COLORS["text_secondary"]};
+    padding: 0px 20px;
+}}
+
+/* Pages */
 #page_title {{
-    font-size: 28px;
+    font-size: 20px;
     font-weight: bold;
     color: {COLORS["text_primary"]};
-    padding: 10px 0px;
+    padding: 6px 0px;
     letter-spacing: 1px;
 }}
 
 #page_subtitle {{
-    font-size: 13px;
+    font-size: 12px;
     color: {COLORS["text_secondary"]};
-    padding: 0px 0px 15px 0px;
+    padding: 0px 0px 10px 0px;
 }}
 
 /* Cartes */
@@ -123,8 +155,8 @@ QWidget {{
         stop:0 {COLORS["bg_card"]},
         stop:1 {COLORS["bg_secondary"]});
     border: 1px solid {COLORS["border"]};
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 10px;
+    padding: 16px;
 }}
 
 #status_card:hover {{
@@ -135,38 +167,38 @@ QWidget {{
 }}
 
 #card_title {{
-    font-size: 11px;
+    font-size: 10px;
     color: {COLORS["text_secondary"]};
     text-transform: uppercase;
     letter-spacing: 2px;
 }}
 
 #card_value {{
-    font-size: 22px;
+    font-size: 18px;
     font-weight: bold;
     color: {COLORS["text_primary"]};
-    padding: 5px 0px;
+    padding: 4px 0px;
 }}
 
 #card_value_success {{
-    font-size: 22px;
+    font-size: 18px;
     font-weight: bold;
     color: {COLORS["success"]};
-    padding: 5px 0px;
+    padding: 4px 0px;
 }}
 
 #card_value_warning {{
-    font-size: 22px;
+    font-size: 18px;
     font-weight: bold;
     color: {COLORS["warning"]};
-    padding: 5px 0px;
+    padding: 4px 0px;
 }}
 
 #card_value_danger {{
-    font-size: 22px;
+    font-size: 18px;
     font-weight: bold;
     color: {COLORS["danger"]};
-    padding: 5px 0px;
+    padding: 4px 0px;
 }}
 
 /* Boutons */
@@ -376,8 +408,8 @@ QProgressBar::chunk {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
         stop:0 {COLORS["bg_card"]},
         stop:1 {COLORS["bg_secondary"]});
-    border: 1px solid {COLORS["border"]};
-    border-radius: 8px;
+    border: 2px solid {COLORS["border"]};
+    border-radius: 6px;
 }}
 
 #game_card:hover {{
@@ -388,38 +420,38 @@ QProgressBar::chunk {{
 }}
 
 #game_title {{
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
     color: {COLORS["text_primary"]};
-    padding: 8px 10px 2px 10px;
+    padding: 6px 8px 2px 8px;
 }}
 
 #game_id {{
-    font-size: 11px;
+    font-size: 10px;
     color: {COLORS["text_secondary"]};
-    padding: 0px 10px 8px 10px;
+    padding: 0px 8px 6px 8px;
 }}
 
 /* Separateur */
 #separator {{
     background-color: {COLORS["border"]};
     max-height: 1px;
-    margin: 10px 0px;
+    margin: 8px 0px;
 }}
 
 /* Labels */
 #label_section {{
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
     color: {COLORS["ps4_highlight"]};
-    padding: 15px 0px 8px 0px;
+    padding: 12px 0px 6px 0px;
     letter-spacing: 1px;
 }}
 
 #label_field {{
     font-size: 12px;
     color: {COLORS["text_secondary"]};
-    padding: 5px 0px 3px 0px;
+    padding: 4px 0px 2px 0px;
 }}
 
 /* MessageBox */

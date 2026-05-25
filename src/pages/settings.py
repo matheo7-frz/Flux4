@@ -20,16 +20,23 @@ from PySide6.QtWidgets import (
 
 from src.core.config import Config
 from src.core.emulator_manager import EmulatorManager, SHADPS4_RELEASES_URL
+from src.core.firmware_manager import FirmwareManager
 from src.styles import COLORS
+
+PS4_FIRMWARE_URL = "https://www.playstation.com/fr-fr/support/hardware/ps4/system-software/"
 
 
 class SettingsPage(QWidget):
     """Page de configuration et param\u00e8tres de l'application."""
 
-    def __init__(self, config: Config, emulator_mgr: EmulatorManager) -> None:
+    def __init__(
+        self, config: Config, emulator_mgr: EmulatorManager,
+        firmware_mgr: FirmwareManager,
+    ) -> None:
         super().__init__()
         self._config = config
         self._emulator_mgr = emulator_mgr
+        self._firmware_mgr = firmware_mgr
         self._setup_ui()
 
     def _setup_ui(self) -> None:
@@ -42,18 +49,57 @@ class SettingsPage(QWidget):
 
         content = QWidget()
         layout = QVBoxLayout(content)
-        layout.setContentsMargins(30, 20, 30, 20)
-        layout.setSpacing(10)
+        layout.setContentsMargins(24, 16, 24, 16)
+        layout.setSpacing(8)
 
-        title = QLabel("Param\u00e8tres")
-        title.setObjectName("page_title")
-        layout.addWidget(title)
+        # === FIRMWARE (comme sur la vraie PS4) ===
+        self._add_section(layout, "Logiciel syst\u00e8me (Firmware)")
 
-        subtitle = QLabel("Configurez votre environnement d'\u00e9mulation PS4")
-        subtitle.setObjectName("page_subtitle")
-        layout.addWidget(subtitle)
+        self._fw_status = QLabel("V\u00e9rification...")
+        self._fw_status.setStyleSheet(
+            f"color: {COLORS['warning']}; font-weight: bold; font-size: 13px;"
+        )
+        layout.addWidget(self._fw_status)
 
-        # Emulator section
+        self._fw_version_label = QLabel("")
+        self._fw_version_label.setStyleSheet(
+            f"color: {COLORS['text_secondary']}; font-size: 11px;"
+        )
+        layout.addWidget(self._fw_version_label)
+
+        self._fw_size_label = QLabel("")
+        self._fw_size_label.setStyleSheet(
+            f"color: {COLORS['text_secondary']}; font-size: 11px;"
+        )
+        layout.addWidget(self._fw_size_label)
+
+        fw_btn_layout = QHBoxLayout()
+        fw_btn_layout.setSpacing(10)
+
+        self._btn_import_fw = QPushButton("Importer le Firmware (.PUP)")
+        self._btn_import_fw.setMinimumHeight(40)
+        self._btn_import_fw.clicked.connect(self._import_firmware)
+        fw_btn_layout.addWidget(self._btn_import_fw)
+
+        btn_official = QPushButton("Site officiel PlayStation")
+        btn_official.setObjectName("btn_secondary")
+        btn_official.setMinimumHeight(40)
+        btn_official.clicked.connect(self._open_official_firmware_page)
+        fw_btn_layout.addWidget(btn_official)
+
+        self._btn_uninstall_fw = QPushButton("D\u00e9sinstaller")
+        self._btn_uninstall_fw.setObjectName("btn_danger")
+        self._btn_uninstall_fw.setMinimumHeight(40)
+        self._btn_uninstall_fw.setFixedWidth(130)
+        self._btn_uninstall_fw.clicked.connect(self._uninstall_firmware)
+        fw_btn_layout.addWidget(self._btn_uninstall_fw)
+
+        fw_btn_layout.addStretch()
+        layout.addLayout(fw_btn_layout)
+
+        self._add_separator(layout)
+
+        # === EMULATEUR ===
         self._add_section(layout, "\u00c9mulateur (shadPS4)")
 
         # Emulator status
@@ -200,7 +246,28 @@ class SettingsPage(QWidget):
         main_layout.addWidget(scroll)
 
     def refresh(self) -> None:
-        """Rafra\u00eechir les valeurs depuis la configuration."""
+        """Rafraichir les valeurs depuis la configuration."""
+        # Firmware
+        fw_info = self._firmware_mgr.get_installed_firmware()
+        if fw_info and fw_info.is_valid:
+            version = fw_info.version or "Inconnue"
+            self._fw_status.setText(f"Firmware v{version} - Install\u00e9")
+            self._fw_status.setStyleSheet(
+                f"color: {COLORS['success']}; font-weight: bold; font-size: 13px;"
+            )
+            self._fw_version_label.setText(f"Version : {version}")
+            self._fw_size_label.setText(f"Taille : {fw_info.size_display}")
+            self._btn_uninstall_fw.setEnabled(True)
+        else:
+            self._fw_status.setText("Firmware non install\u00e9")
+            self._fw_status.setStyleSheet(
+                f"color: {COLORS['danger']}; font-weight: bold; font-size: 13px;"
+            )
+            self._fw_version_label.setText("")
+            self._fw_size_label.setText("")
+            self._btn_uninstall_fw.setEnabled(False)
+
+        # Emulateur
         emu_path = self._emulator_mgr.detect_emulator()
         if emu_path:
             self._emu_path_input.setText(emu_path)
@@ -287,6 +354,51 @@ class SettingsPage(QWidget):
         if directory:
             self._config.games_directory = directory
             self._games_dir_input.setText(directory)
+
+    def _import_firmware(self) -> None:
+        filepath, _ = QFileDialog.getOpenFileName(
+            self,
+            "S\u00e9lectionner le fichier Firmware PS4",
+            "",
+            "Firmware PS4 (*.PUP *.pup);;Tous les fichiers (*)",
+        )
+        if not filepath:
+            return
+
+        info = self._firmware_mgr.import_firmware(filepath)
+        if info.is_valid:
+            version = info.version or "Inconnue"
+            QMessageBox.information(
+                self,
+                "Firmware install\u00e9",
+                f"Le firmware PS4 v{version} a \u00e9t\u00e9 install\u00e9 avec succ\u00e8s !\n\n"
+                f"Fichier : {info.filename}\n"
+                f"Taille : {info.size_display}",
+            )
+        else:
+            QMessageBox.warning(
+                self,
+                "\u00c9chec de l'importation",
+                f"Le fichier s\u00e9lectionn\u00e9 n'est pas un firmware PS4 valide.\n\n"
+                f"Erreur : {info.error}",
+            )
+        self.refresh()
+
+    def _open_official_firmware_page(self) -> None:
+        webbrowser.open(PS4_FIRMWARE_URL)
+
+    def _uninstall_firmware(self) -> None:
+        reply = QMessageBox.question(
+            self,
+            "Confirmer la d\u00e9sinstallation",
+            "\u00cates-vous s\u00fbr de vouloir d\u00e9sinstaller le firmware PS4 ?\n\n"
+            "Les jeux ne fonctionneront pas sans firmware install\u00e9.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self._firmware_mgr.uninstall_firmware()
+            self.refresh()
 
     def _open_download_page(self) -> None:
         webbrowser.open(SHADPS4_RELEASES_URL)
